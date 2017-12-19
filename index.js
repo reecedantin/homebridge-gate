@@ -1,8 +1,9 @@
 var Service;
 var Characteristic;
 
-var python = require('python-shell');
+//var python = require('python-shell');
 
+var http = require('http');
 var currentState = "CLOSED";
 var targetState = "CLOSED";
 
@@ -18,7 +19,7 @@ function GateAccessory(log, config) {
   this.log = log;
 
   this.name     = config['name'];
-  this.pyloc     = config['pyloc'];
+  //this.pyloc     = config['pyloc'];
 
   this.service = new Service.GarageDoorOpener(this.name);
 
@@ -50,9 +51,11 @@ GateAccessory.prototype.setTargetGateState = function(state, callback) {
     if(currentState == "CLOSED" || currentState == "CLOSING")
     {
       currentState = "OPENING";
-      python.run(this.pyloc, function (err){
-        if(err) console.log(err);
-      });
+      //python.run(this.pyloc, function (err){
+      //  if(err) console.log(err);
+      //});
+
+      http.get("http://192.168.0.14:3000/open", (res) => {});
       this.service
           .getCharacteristic(Characteristic.CurrentDoorState)
           .setValue(this.checkCurrentGateState(currentState));
@@ -88,7 +91,7 @@ GateAccessory.prototype.setTargetGateState = function(state, callback) {
     currentState = "CLOSING";
     this.service
         .getCharacteristic(Characteristic.CurrentDoorState)
-        .setValue(Characteristic.CurrentDoorState.CLOSING);
+        .setValue(Characteristic.CurrentDoorState.CLOSED);
   }
   callback();
   //this.log("got past set " + targetState);

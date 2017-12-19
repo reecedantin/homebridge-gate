@@ -1,69 +1,26 @@
 {
-  "_args": [
-    [
-      {
-        "raw": ".",
-        "scope": null,
-        "escapedName": null,
-        "name": null,
-        "rawSpec": ".",
-        "spec": "/media/pi/TINYDRIVE/transport/homebridge-gate",
-        "type": "directory"
-      },
-      ""
-    ]
-  ],
-  "_from": "../../media/pi/TINYDRIVE/transport/homebridge-gate",
-  "_id": "homebridge-gate@0.0.1",
-  "_inCache": true,
-  "_installable": true,
-  "_location": "/homebridge-gate",
-  "_phantomChildren": {},
-  "_requested": {
-    "raw": ".",
-    "scope": null,
-    "escapedName": null,
-    "name": null,
-    "rawSpec": ".",
-    "spec": "/media/pi/TINYDRIVE/transport/homebridge-gate",
-    "type": "directory"
-  },
-  "_requiredBy": [
-    "#USER"
-  ],
-  "_resolved": "file:../../media/pi/TINYDRIVE/transport/homebridge-gate",
-  "_shasum": "8edf3af579f441eed6dc66586540ab2a12ecc21f",
-  "_shrinkwrap": null,
-  "_spec": ".",
-  "_where": "",
-  "author": {
-    "name": "Reece Dantin"
-  },
-  "bugs": {
-    "url": "https://github.com/reecedantin/homebridge-gate/issues"
-  },
-  "dependencies": {
-    "python-shell": "0.4.0"
-  },
-  "description": "GATE plugin for Homebridge: https://github.com/nfarina/homebridge",
-  "devDependencies": {},
-  "engines": {
-    "homebridge": ">=0.2.0",
-    "node": ">=0.12.0"
-  },
-  "gitHead": "0b4c726f41a32f7fdf6adf98502fcb5fc361c2f5",
-  "homepage": "https://github.com/reecedantin/homebridge-gate#readme",
+  "name": "homebridge-gate",
+  "version": "1.0.0",
+  "description": "homebridge plugin for my home gate",
+  "main": "index.js",
   "keywords": [
     "homebridge-plugin"
   ],
-  "license": "ISC",
-  "name": "homebridge-gate",
-  "optionalDependencies": {},
-  "readme": "ERROR: No README data found!",
-  "readmeFilename": "README.md",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
   "repository": {
     "type": "git",
-    "url": "git://github.com/reecedantin/homebridge-gate.git"
+    "url": "git+https://github.com/reecedantin/homebridge-gate.git"
   },
-  "version": "0.0.1"
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/reecedantin/homebridge-gate/issues"
+  },
+  "homepage": "https://github.com/reecedantin/homebridge-gate#readme",
+  "engines": {
+    "node": ">=0.12.0",
+    "homebridge": ">=0.2.0"
+  }
 }
