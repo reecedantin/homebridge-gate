@@ -57,9 +57,9 @@ GateAccessory.prototype.setTargetGateState = function(state, callback) {
           this.service
             .getCharacteristic(Characteristic.CurrentDoorState)
             .setValue(Characteristic.CurrentDoorState.OPEN)
-        }).bind(this)
+        })
 
-        setTimeout(function() {        
+        setTimeout(function() {
             this.service
             .getCharacteristic(Characteristic.CurrentDoorState)
             .setValue(Characteristic.CurrentDoorState.CLOSED)
@@ -71,7 +71,7 @@ GateAccessory.prototype.setTargetGateState = function(state, callback) {
             this.service
                 .getCharacteristic(Characteristic.CurrentDoorState)
                 .setValue(Characteristic.CurrentDoorState.CLOSED);
-        }).bind(this)
+        })
   }
   callback()
 }
