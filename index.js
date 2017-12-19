@@ -55,14 +55,14 @@ GateAccessory.prototype.setTargetGateState = function(state, callback) {
 
         http.get("http://192.168.0.14:3000/open", (res) => {
           this.service
-          .getCharacteristic(Characteristic.CurrentDoorState)
-          .setValue(Characteristic.CurrentDoorState.OPEN)
+            .getCharacteristic(Characteristic.CurrentDoorState)
+            .setValue(Characteristic.CurrentDoorState.OPEN)
         }).bind(this)
 
-        setTimeout({
-          this.service
-          .getCharacteristic(Characteristic.CurrentDoorState)
-          .setValue(Characteristic.CurrentDoorState.CLOSED)
+        setTimeout(function() {        
+            this.service
+            .getCharacteristic(Characteristic.CurrentDoorState)
+            .setValue(Characteristic.CurrentDoorState.CLOSED)
         }, 90000)
   } else {
         targetState = "CLOSED";
