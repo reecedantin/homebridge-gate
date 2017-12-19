@@ -1,11 +1,9 @@
 var Service;
 var Characteristic;
 
-//var python = require('python-shell');
-
-var http = require('http');
-var currentState = "CLOSED";
-var targetState = "CLOSED";
+var http = require('http')
+var currentState = "CLOSED"
+var targetState = "CLOSED"
 
 
 module.exports = function(homebridge) {
@@ -18,8 +16,7 @@ module.exports = function(homebridge) {
 function GateAccessory(log, config) {
   this.log = log;
 
-  this.name     = config['name'];
-  //this.pyloc     = config['pyloc'];
+  this.name     = config['name']
 
   this.service = new Service.GarageDoorOpener(this.name);
 
@@ -34,6 +31,13 @@ function GateAccessory(log, config) {
       .on('set', this.setTargetGateState.bind(this))
       .setValue(Characteristic.CurrentDoorState.CLOSED);
 
+
+  this.switchService = new Service.Switch(this.name + " STOP")
+
+  this.switchService.getCharacteristic(Characteristic.On)
+    .on('set', this.turnOnStop.bind(this));
+
+
   this.infoService = new Service.AccessoryInformation();
 
   this.infoService
@@ -45,65 +49,39 @@ function GateAccessory(log, config) {
 
 GateAccessory.prototype.setTargetGateState = function(state, callback) {
   this.log("Gate is  " + targetState);
-  if(!state)
-  {
-    targetState = "OPEN";
-    if(currentState == "CLOSED" || currentState == "CLOSING")
-    {
-      currentState = "OPENING";
-      //python.run(this.pyloc, function (err){
-      //  if(err) console.log(err);
-      //});
-
-      http.get("http://192.168.0.14:3000/open", (res) => {});
-      this.service
-          .getCharacteristic(Characteristic.CurrentDoorState)
-          .setValue(this.checkCurrentGateState(currentState));
-      setTimeout(function(log, service){
-        //log("OPENED");
+  if(!state) {
+        targetState = "OPEN";
         currentState = "OPEN";
-        service
-            .getCharacteristic(Characteristic.CurrentDoorState)
-            .setValue(Characteristic.CurrentDoorState.OPEN);
 
-        setTimeout(function(log, service){
-          //log("CLOSING");
-          currentState = "CLOSING";
-          targetState = "CLOSED";
-          service
-              .getCharacteristic(Characteristic.TargetDoorState)
-              .setValue(Characteristic.TargetDoorState.CLOSED);
+        http.get("http://192.168.0.14:3000/open", (res) => {
+          this.service
+          .getCharacteristic(Characteristic.CurrentDoorState)
+          .setValue(Characteristic.CurrentDoorState.OPEN)
+        }).bind(this)
 
-          setTimeout(function(log, service){
-            //log("CLOSED");
-            currentState = "CLOSED";
-            service
+        setTimeout({
+          this.service
+          .getCharacteristic(Characteristic.CurrentDoorState)
+          .setValue(Characteristic.CurrentDoorState.CLOSED)
+        }, 90000)
+  } else {
+        targetState = "CLOSED";
+        currentState = "CLOSED";
+        http.get("http://192.168.0.14:3000/close", (res) => {
+            this.service
                 .getCharacteristic(Characteristic.CurrentDoorState)
                 .setValue(Characteristic.CurrentDoorState.CLOSED);
-          }, 15000, log, service); //15000
-        }, 60000, log, service); //60000
-      }, 15000, this.log, this.service); //15000
-
-    }
+        }).bind(this)
   }
-  else {
-    targetState = "CLOSED";
-    currentState = "CLOSING";
-    this.service
-        .getCharacteristic(Characteristic.CurrentDoorState)
-        .setValue(Characteristic.CurrentDoorState.CLOSED);
-  }
-  callback();
-  //this.log("got past set " + targetState);
+  callback()
 }
 
 GateAccessory.prototype.getTargetGateState = function(callback) {
-    callback(null, this.checkTargetGateState(targetState));
+    callback(null, this.checkTargetGateState(targetState))
 }
 
 GateAccessory.prototype.getCurrentGateState = function(callback) {
-    callback(null, this.checkCurrentGateState(currentState));
-    //this.log("GATE CURRENT STATUS = " + this.checkCurrentGateState(currentState) +" "+ currentState)
+    callback(null, this.checkCurrentGateState(currentState))
 }
 
 GateAccessory.prototype.checkCurrentGateState = function(state){
@@ -132,6 +110,20 @@ GateAccessory.prototype.checkTargetGateState = function(state){
   }
 }
 
+
+GateAccessory.prototype.turnOnStop = function(state, callback){
+    if(state) {
+        http.get("http://192.168.0.14:3000/stop", (res) => {
+            callback()
+        });
+    } else {
+        http.get("http://192.168.0.14:3000/close", (res) => {
+            callback()
+        });
+    }
+}
+
+
 GateAccessory.prototype.getServices = function() {
-  return [this.service, this.infoService];
+  return [this.service, this.switchService, this.infoService];
 }
