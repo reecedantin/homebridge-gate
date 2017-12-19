@@ -63,7 +63,7 @@ GateAccessory.prototype.setTargetGateState = function(state, callback) {
             service
               .getCharacteristic(Characteristic.CurrentDoorState)
               .setValue(Characteristic.CurrentDoorState.CLOSED)
-        }, 90000)
+        }, 90000, service)
   } else {
         targetState = "CLOSED";
         currentState = "CLOSED";
