@@ -59,8 +59,8 @@ GateAccessory.prototype.setTargetGateState = function(state, callback) {
             .setValue(Characteristic.CurrentDoorState.OPEN)
         })
 
-        setTimeout(function() {
-            this.service
+        setTimeout(function(service) {
+            service
             .getCharacteristic(Characteristic.CurrentDoorState)
             .setValue(Characteristic.CurrentDoorState.CLOSED)
         }, 90000)
