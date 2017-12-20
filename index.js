@@ -52,6 +52,7 @@ function GateAccessory(log, config) {
 GateAccessory.prototype.setTargetGateState = function(state, callback) {
   this.log("Gate is  " + targetState);
   if(this.selfset) {
+      this.log("got selfset command")
       this.selfset = false
       callback()
       return
@@ -68,9 +69,11 @@ GateAccessory.prototype.setTargetGateState = function(state, callback) {
         })
         service = this.service
         selfset = this.selfset
-        setTimeout(function(service, selfset) {
+        this.log("Opened Gate, waiting for close")
+        setTimeout(function(service, selfset, log) {
             targetState = "CLOSED";
             currentState = "CLOSED";
+            log("waited 165 seconds, closing")
             selfset = true
             service
               .getCharacteristic(Characteristic.CurrentDoorState)
@@ -78,8 +81,9 @@ GateAccessory.prototype.setTargetGateState = function(state, callback) {
             service
               .getCharacteristic(Characteristic.TargetDoorState)
               .setValue(Characteristic.TargetDoorState.CLOSED);
-        }, 165000, service, selfset) //165 seconds
+        }, 165000, service, selfset, this.log) //165 seconds
   } else {
+      this.log("got close command")
         targetState = "CLOSED";
         currentState = "CLOSED";
         http.get("http://192.168.0.14:3000/close", (res) => {
