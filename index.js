@@ -50,9 +50,8 @@ function GateAccessory(log, config) {
 
 
 GateAccessory.prototype.setTargetGateState = function(state, callback) {
-  this.log("Gate is  " + targetState);
   if(this.selfset) {
-      this.log("got selfset command")
+      this.log("Gate selfset " + state)
       this.selfset = false
       callback()
       return
@@ -62,31 +61,32 @@ GateAccessory.prototype.setTargetGateState = function(state, callback) {
         targetState = "OPEN";
         currentState = "OPEN";
 
-        http.get("http://192.168.0.14:3000/open", (res) => {
+        http.get("http://192.168.0.14:3000/", (res) => {
+          this.log("Gate Opened")
           this.service
             .getCharacteristic(Characteristic.CurrentDoorState)
             .setValue(Characteristic.CurrentDoorState.OPEN)
         })
         service = this.service
         selfset = this.selfset
-        this.log("Opened Gate, waiting for close")
         setTimeout(function(service, selfset, log) {
             targetState = "CLOSED";
             currentState = "CLOSED";
-            log("waited 165 seconds, closing")
+            log("Gate Closed")
             selfset = true
             service
               .getCharacteristic(Characteristic.CurrentDoorState)
               .setValue(Characteristic.CurrentDoorState.CLOSED)
+            selfset = true
             service
               .getCharacteristic(Characteristic.TargetDoorState)
               .setValue(Characteristic.TargetDoorState.CLOSED);
-        }, 165000, service, selfset, this.log) //165 seconds
+        }, 165000, service, this.selfset, this.log) //165 seconds
   } else {
-      this.log("got close command")
+      this.log("Closing Gate")
         targetState = "CLOSED";
         currentState = "CLOSED";
-        http.get("http://192.168.0.14:3000/close", (res) => {
+        http.get("http://192.168.0.14:3000/", (res) => {
             this.service
                 .getCharacteristic(Characteristic.CurrentDoorState)
                 .setValue(Characteristic.CurrentDoorState.CLOSED);
