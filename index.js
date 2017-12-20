@@ -39,6 +39,11 @@ function GateAccessory(log, config) {
   this.switchService.getCharacteristic(Characteristic.On)
     .on('set', this.turnOnStop.bind(this));
 
+  this.otherSwitchService = new Service.Switch(this.name + " AUTO")
+
+  this.otherSwitchService.getCharacteristic(Characteristic.On)
+    .on('set', this.turnOn.bind(this));
+
 
   this.infoService = new Service.AccessoryInformation();
 
@@ -141,7 +146,19 @@ GateAccessory.prototype.turnOnStop = function(state, callback){
     }
 }
 
+GateAccessory.prototype.turnOn = function(state, callback){
+    if(state) {
+        http.get("http://192.168.0.14:3000/open", (res) => {
+            callback()
+        });
+    } else {
+        http.get("http://192.168.0.14:3000/close", (res) => {
+            callback()
+        });
+    }
+}
+
 
 GateAccessory.prototype.getServices = function() {
-  return [this.service, this.switchService, this.infoService];
+  return [this.service, this.switchService, this.otherSwitchService, this.infoService];
 }
