@@ -90,9 +90,6 @@ GateAccessory.prototype.setTargetGateState = function(state, callback) {
             this.service
                 .getCharacteristic(Characteristic.CurrentDoorState)
                 .setValue(Characteristic.CurrentDoorState.CLOSED);
-            this.service
-                .getCharacteristic(Characteristic.TargetDoorState)
-                .setValue(Characteristic.TargetDoorState.CLOSED);
         })
   }
   callback()
