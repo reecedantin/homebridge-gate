@@ -18,7 +18,7 @@ function GateAccessory(log, config) {
 
   this.name     = config['name']
 
-  this.selfset = false
+  this.selfset = true
 
   this.service = new Service.GarageDoorOpener(this.name);
 
