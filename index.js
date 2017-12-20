@@ -35,12 +35,12 @@ function GateAccessory(log, config) {
 
 
   this.switchService = new Service.Switch(this.name + " STOP")
-
+  this.switchService.subtype = "stop"
   this.switchService.getCharacteristic(Characteristic.On)
     .on('set', this.turnOnStop.bind(this));
 
   this.otherSwitchService = new Service.Switch(this.name + " AUTO")
-
+  this.otherSwitchService.subtype = "automation"
   this.otherSwitchService.getCharacteristic(Characteristic.On)
     .on('set', this.turnOn.bind(this));
 
