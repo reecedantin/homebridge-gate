@@ -68,9 +68,9 @@ GateAccessory.prototype.setTargetGateState = function(state, callback) {
         })
         service = this.service
         selfset = this.selfset
-        targetState = "CLOSED";
-        currentState = "CLOSED";
         setTimeout(function(service, selfset) {
+            targetState = "CLOSED";
+            currentState = "CLOSED";
             selfset = true
             service
               .getCharacteristic(Characteristic.CurrentDoorState)
