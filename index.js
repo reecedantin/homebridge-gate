@@ -18,6 +18,8 @@ function GateAccessory(log, config) {
 
   this.name     = config['name']
 
+  this.selfset = false
+
   this.service = new Service.GarageDoorOpener(this.name);
 
   this.service
@@ -49,6 +51,12 @@ function GateAccessory(log, config) {
 
 GateAccessory.prototype.setTargetGateState = function(state, callback) {
   this.log("Gate is  " + targetState);
+  if(this.selfset) {
+      this.selfset = false
+      callback()
+      return
+  }
+
   if(!state) {
         targetState = "OPEN";
         currentState = "OPEN";
@@ -59,11 +67,18 @@ GateAccessory.prototype.setTargetGateState = function(state, callback) {
             .setValue(Characteristic.CurrentDoorState.OPEN)
         })
         service = this.service
-        setTimeout(function(service) {
+        selfset = this.selfset
+        targetState = "CLOSED";
+        currentState = "CLOSED";
+        setTimeout(function(service, selfset) {
+            selfset = true
             service
               .getCharacteristic(Characteristic.CurrentDoorState)
               .setValue(Characteristic.CurrentDoorState.CLOSED)
-        }, 90000, service)
+            service
+              .getCharacteristic(Characteristic.TargetDoorState)
+              .setValue(Characteristic.TargetDoorState.CLOSED);
+        }, 165000, service, selfset) //165 seconds
   } else {
         targetState = "CLOSED";
         currentState = "CLOSED";
@@ -71,6 +86,9 @@ GateAccessory.prototype.setTargetGateState = function(state, callback) {
             this.service
                 .getCharacteristic(Characteristic.CurrentDoorState)
                 .setValue(Characteristic.CurrentDoorState.CLOSED);
+            this.service
+                .getCharacteristic(Characteristic.TargetDoorState)
+                .setValue(Characteristic.TargetDoorState.CLOSED);
         })
   }
   callback()
