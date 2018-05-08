@@ -230,12 +230,11 @@ GateAccessory.prototype.getPath = function(path, callback) {
     req.setTimeout(1000, () => {
         console.log("Timed out connecting to gate")
         req.abort()
-        callback(false)
     })
 
     req.on('error', (e) => {
-        callback(false)
         console.log(`Could not connect to gate: ${e.message}`);
+        callback(false)
     });
 
     req.end();
