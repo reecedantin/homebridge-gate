@@ -4,6 +4,8 @@ var Characteristic;
 var http = require('http')
 var currentState = "CLOSED"
 var targetState = "CLOSED"
+var currentStopStatus = false;
+var currentAutoStatus = false;
 
 
 module.exports = function(homebridge) {
@@ -17,6 +19,8 @@ function GateAccessory(log, config) {
   this.log = log;
 
   this.name     = config['name']
+  this.address  = config['address']
+  this.port     = config['port']
 
   this.selfset = true
 
@@ -37,12 +41,14 @@ function GateAccessory(log, config) {
   this.switchService = new Service.Switch(this.name + " STOP")
   this.switchService.subtype = "stop"
   this.switchService.getCharacteristic(Characteristic.On)
-    .on('set', this.turnOnStop.bind(this));
+    .on('set', this.turnOnStop.bind(this))
+    .on('get', this.getCurrentStopStatus);
 
   this.otherSwitchService = new Service.Switch(this.name + " AUTO")
   this.otherSwitchService.subtype = "automation"
   this.otherSwitchService.getCharacteristic(Characteristic.On)
-    .on('set', this.turnOn.bind(this));
+    .on('set', this.turnOn.bind(this))
+    .on('get', this.getCurrentAutoStatus);
 
 
   this.infoService = new Service.AccessoryInformation();
@@ -63,15 +69,17 @@ GateAccessory.prototype.setTargetGateState = function(state, callback) {
   }
 
   if(!state) {
-        targetState = "OPEN";
-        currentState = "OPEN";
-
         this.getPath('open', (res) => {
             if(res) {
+                targetState = "OPEN";
+                currentState = "OPEN";
                 this.log("Gate Opened")
                 this.service
                   .getCharacteristic(Characteristic.CurrentDoorState)
                   .setValue(Characteristic.CurrentDoorState.OPEN)
+                callback()
+            } else {
+              callback(new Error("Gate disconnected"))
             }
         })
         service = this.service;
@@ -89,18 +97,20 @@ GateAccessory.prototype.setTargetGateState = function(state, callback) {
               .setValue(Characteristic.TargetDoorState.CLOSED);
         }, 165000, service, this.selfset, this.log) //165 seconds
   } else {
-      this.log("Closing Gate")
-        targetState = "CLOSED";
-        currentState = "CLOSED";
+        this.log("Closing Gate")
         this.getPath('close', (res) => {
             if(res) {
                 this.service
                     .getCharacteristic(Characteristic.CurrentDoorState)
                     .setValue(Characteristic.CurrentDoorState.CLOSED);
+                callback()
+                targetState = "CLOSED";
+                currentState = "CLOSED";
+            } else {
+                callback(new Error("Gate disconnected"))
             }
         })
   }
-  callback()
 }
 
 GateAccessory.prototype.getTargetGateState = function(callback) {
@@ -111,7 +121,7 @@ GateAccessory.prototype.getCurrentGateState = function(callback) {
     callback(null, this.checkCurrentGateState(currentState))
 }
 
-GateAccessory.prototype.checkCurrentGateState = function(state){
+GateAccessory.prototype.checkCurrentGateState = function(state) {
   switch (state){
       case 'OPEN':
           return Characteristic.CurrentDoorState.OPEN;
@@ -127,7 +137,7 @@ GateAccessory.prototype.checkCurrentGateState = function(state){
   }
 }
 
-GateAccessory.prototype.checkTargetGateState = function(state){
+GateAccessory.prototype.checkTargetGateState = function(state) {
   switch (state){
       case 'OPEN':
           return Characteristic.CurrentDoorState.OPEN;
@@ -138,21 +148,55 @@ GateAccessory.prototype.checkTargetGateState = function(state){
 }
 
 
-GateAccessory.prototype.turnOnStop = function(state, callback){
+GateAccessory.prototype.turnOnStop = function(state, callback) {
     if(state) {
-        this.getPath('stop', callback)
+        this.getPath('stop', (res) => {
+            if(res) {
+                currentStopStatus = true
+                callback()
+            } else {
+                callback(new Error("Gate disconnected"))
+            }
+        })
     } else {
-        this.getPath('close', callback)
+        this.getPath('close', (res) => {
+            if(res) {
+                currentStopStatus = false
+                callback()
+            } else {
+                callback(new Error("Gate disconnected"))
+            }
+        })
     }
 }
 
-GateAccessory.prototype.turnOn = function(state, callback){
+GateAccessory.prototype.turnOn = function(state, callback) {
     if(state) {
         console.log("Gate Open")
-        this.getPath('open', callback)
+        this.getPath('open', (res) => {
+            if(res) {
+                callback()
+            } else {
+                callback(new Error("Gate disconnected"))
+            }
+        })
     } else {
-        this.getPath('close', callback)
+        this.getPath('close', (res) => {
+            if(res) {
+                callback()
+            } else {
+                callback(new Error("Gate disconnected"))
+            }
+        })
     }
+}
+
+GateAccessory.prototype.getCurrentStopStatus = function(callback) {
+    return callback(null, currentStopStatus);
+}
+
+GateAccessory.prototype.getCurrentAutoStatus = function(callback) {
+    return callback(null, currentAutoStatus);
 }
 
 
@@ -162,8 +206,8 @@ GateAccessory.prototype.getServices = function() {
 
 GateAccessory.prototype.getPath = function(path, callback) {
     var options = {
-        hostname: '192.168.0.14',
-        port: 3000,
+        hostname: this.address,
+        port: this.port,
         path: '/' + path,
         timeout: 1000,
         method: 'GET'
@@ -176,6 +220,10 @@ GateAccessory.prototype.getPath = function(path, callback) {
 
       res.on('end', () => {
           callback(true)
+      });
+
+      res.on('error', () => {
+          callback(false)
       });
     });
 
