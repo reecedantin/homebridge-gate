@@ -66,7 +66,7 @@ GateAccessory.prototype.setTargetGateState = function(state, callback) {
         targetState = "OPEN";
         currentState = "OPEN";
 
-        this.getpath('open', (res) => {
+        this.getPath('open', (res) => {
             if(res) {
                 this.log("Gate Opened")
                 this.service
@@ -92,7 +92,7 @@ GateAccessory.prototype.setTargetGateState = function(state, callback) {
       this.log("Closing Gate")
         targetState = "CLOSED";
         currentState = "CLOSED";
-        this.getpath('close', (res) => {
+        this.getPath('close', (res) => {
             if(res) {
                 this.service
                     .getCharacteristic(Characteristic.CurrentDoorState)
@@ -140,11 +140,11 @@ GateAccessory.prototype.checkTargetGateState = function(state){
 
 GateAccessory.prototype.turnOnStop = function(state, callback){
     if(state) {
-        this.getpath('stop', (res) => {
+        this.getPath('stop', (res) => {
             callback(res)
         })
     } else {
-        this.getpath('close', (res) => {
+        this.getPath('close', (res) => {
             callback(res)
         })
     }
@@ -152,11 +152,11 @@ GateAccessory.prototype.turnOnStop = function(state, callback){
 
 GateAccessory.prototype.turnOn = function(state, callback){
     if(state) {
-        this.getpath('open', (res) => {
+        this.getPath('open', (res) => {
             callback(res)
         })
     } else {
-        this.getpath('close', (res) => {
+        this.getPath('close', (res) => {
             callback(res)
         })
     }
