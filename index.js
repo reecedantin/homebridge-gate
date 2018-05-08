@@ -148,7 +148,11 @@ GateAccessory.prototype.turnOnStop = function(state, callback){
 
 GateAccessory.prototype.turnOn = function(state, callback){
     if(state) {
-        this.getPath('open', callback)
+        console.log("Gate Open")
+        this.getPath('open', (res) => {
+            console.log("finished opening gate, respond to client")
+            callback()
+        })
     } else {
         this.getPath('close', callback)
     }
@@ -171,6 +175,7 @@ GateAccessory.prototype.getPath = function(path, callback) {
     const req = http.request(options, (res) => {
       res.setEncoding('utf8');
       res.on('end', () => {
+          console.log("Gate command sent")
           callback(true)
       });
     });
