@@ -150,8 +150,7 @@ GateAccessory.prototype.turnOn = function(state, callback){
     if(state) {
         console.log("Gate Open")
         this.getPath('open', (res) => {
-            console.log("finished opening gate, respond to client")
-            callback()
+            callback(res)
         })
     } else {
         this.getPath('close', callback)
@@ -164,7 +163,7 @@ GateAccessory.prototype.getServices = function() {
 }
 
 GateAccessory.prototype.getPath = function(path, callback) {
-    const options = {
+    var options = {
         hostname: '192.168.0.14',
         port: 3000,
         path: '/' + path,
@@ -172,10 +171,12 @@ GateAccessory.prototype.getPath = function(path, callback) {
         method: 'GET'
     };
 
-    const req = http.request(options, (res) => {
+    var req = http.request(options, (res) => {
       res.setEncoding('utf8');
+
+      res.on('data', (chunk) => {});
+
       res.on('end', () => {
-          console.log("Gate command sent")
           callback(true)
       });
     });
