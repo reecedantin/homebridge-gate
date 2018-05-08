@@ -149,9 +149,7 @@ GateAccessory.prototype.turnOnStop = function(state, callback){
 GateAccessory.prototype.turnOn = function(state, callback){
     if(state) {
         console.log("Gate Open")
-        this.getPath('open', (res) => {
-            callback(res)
-        })
+        this.getPath('open', callback)
     } else {
         this.getPath('close', callback)
     }
