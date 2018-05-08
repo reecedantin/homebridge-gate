@@ -73,7 +73,7 @@ GateAccessory.prototype.setTargetGateState = function(state, callback) {
                   .getCharacteristic(Characteristic.CurrentDoorState)
                   .setValue(Characteristic.CurrentDoorState.OPEN)
             }
-        }).bind(this)
+        })
         service = this.service;
         setTimeout(function(service, selfset, log) {
             targetState = "CLOSED";
@@ -98,7 +98,7 @@ GateAccessory.prototype.setTargetGateState = function(state, callback) {
                     .getCharacteristic(Characteristic.CurrentDoorState)
                     .setValue(Characteristic.CurrentDoorState.CLOSED);
             }
-        }).bind(this)
+        })
   }
   callback()
 }
@@ -140,25 +140,17 @@ GateAccessory.prototype.checkTargetGateState = function(state){
 
 GateAccessory.prototype.turnOnStop = function(state, callback){
     if(state) {
-        this.getPath('stop', (res) => {
-            callback(res)
-        }).bind(this)
+        this.getPath('stop', callback)
     } else {
-        this.getPath('close', (res) => {
-            callback(res)
-        }).bind(this)
+        this.getPath('close', callback)
     }
 }
 
 GateAccessory.prototype.turnOn = function(state, callback){
     if(state) {
-        this.getPath('open', (res) => {
-            callback(res)
-        }).bind(this)
+        this.getPath('open', callback)
     } else {
-        this.getPath('close', (res) => {
-            callback(res)
-        }).bind(this)
+        this.getPath('close', callback)
     }
 }
 
