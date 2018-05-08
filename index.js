@@ -66,11 +66,13 @@ GateAccessory.prototype.setTargetGateState = function(state, callback) {
         targetState = "OPEN";
         currentState = "OPEN";
 
-        http.get("http://192.168.0.14:3000/open", (res) => {
-          this.log("Gate Opened")
-          this.service
-            .getCharacteristic(Characteristic.CurrentDoorState)
-            .setValue(Characteristic.CurrentDoorState.OPEN)
+        this.getpath('open', (res) => {
+            if(res) {
+                this.log("Gate Opened")
+                this.service
+                  .getCharacteristic(Characteristic.CurrentDoorState)
+                  .setValue(Characteristic.CurrentDoorState.OPEN)
+            }
         })
         service = this.service;
         setTimeout(function(service, selfset, log) {
@@ -90,10 +92,12 @@ GateAccessory.prototype.setTargetGateState = function(state, callback) {
       this.log("Closing Gate")
         targetState = "CLOSED";
         currentState = "CLOSED";
-        http.get("http://192.168.0.14:3000/close", (res) => {
-            this.service
-                .getCharacteristic(Characteristic.CurrentDoorState)
-                .setValue(Characteristic.CurrentDoorState.CLOSED);
+        this.getpath('close', (res) => {
+            if(res) {
+                this.service
+                    .getCharacteristic(Characteristic.CurrentDoorState)
+                    .setValue(Characteristic.CurrentDoorState.CLOSED);
+            }
         })
   }
   callback()
@@ -136,29 +140,59 @@ GateAccessory.prototype.checkTargetGateState = function(state){
 
 GateAccessory.prototype.turnOnStop = function(state, callback){
     if(state) {
-        http.get("http://192.168.0.14:3000/stop", (res) => {
-            callback()
-        });
+        this.getpath('stop', (res) => {
+            callback(res)
+        })
     } else {
-        http.get("http://192.168.0.14:3000/close", (res) => {
-            callback()
-        });
+        this.getpath('close', (res) => {
+            callback(res)
+        })
     }
 }
 
 GateAccessory.prototype.turnOn = function(state, callback){
     if(state) {
-        http.get("http://192.168.0.14:3000/open", (res) => {
-            callback()
-        });
+        this.getpath('open', (res) => {
+            callback(res)
+        })
     } else {
-        http.get("http://192.168.0.14:3000/close", (res) => {
-            callback()
-        });
+        this.getpath('close', (res) => {
+            callback(res)
+        })
     }
 }
 
 
 GateAccessory.prototype.getServices = function() {
   return [this.service, this.switchService, this.otherSwitchService, this.infoService];
+}
+
+GateAccessory.prototype.getPath = function(path, callback) {
+    const options = {
+        hostname: '192.168.0.14',
+        port: 3000,
+        path: '/' + path,
+        timeout: 1000,
+        method: 'GET'
+    };
+
+    const req = http.request(options, (res) => {
+      res.setEncoding('utf8');
+      res.on('end', () => {
+          callback(true)
+      });
+    });
+
+    req.setTimeout(1000, () => {
+        console.log("Timed out connecting to gate")
+        req.abort()
+        callback(false)
+    })
+
+    req.on('error', (e) => {
+        callback(false)
+        console.log(`Could not connect to gate: ${e.message}`);
+    });
+
+    req.end();
 }
